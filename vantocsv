@@ -1,0 +1,55 @@
+#!/bin/sh
+# Author: Andrew Quinn
+# Last Modified July 23, 2015
+# Converts VAN/Liberalist PDF print files to CSV
+# Program assumes you use $$ to deliminate newlines
+# Requires pdftotext - availible in poppler package 
+# run: brew install poppler
+#
+# Usage: vantocsv.sh INPUT.pdf OUTPUT.csv
+
+INPUT="$1"
+OUTPUT="$2"
+
+if ! type "pdftotext" > /dev/null
+	then
+  		echo "\npdftotext is not installed"
+  		echo "Install the poppler package to continue."
+  		echo "The poppler package is availible in homebrew."
+  		echo "run: brew install poppler\n"
+  		exit
+fi
+
+if [ $# -eq 0 ]
+  then
+    echo "No arguments supplied."
+    echo "Usage: vantocsv.sh INPUT.pdf OUTPUT.csv"
+    exit
+fi
+
+if [[ ${INPUT} != *.pdf ]]
+	then
+		echo "Input file is not a PDF."
+		exit
+fi
+
+if [[ ${OUTPUT} != *.csv ]]
+	then
+		echo "Output file is not a CSV."
+		exit
+fi
+
+echo "Converting ${INPUT} to ${OUTPUT}."
+if pdftotext -nopgbrk -raw ${INPUT} ${OUTPUT}
+	then
+		if sed -i '' -e ':a' -e 'N' -e '$!ba' -e 's/\n\$\$//g' -e 's/ , /,/g' ${OUTPUT}
+			then
+				echo "Converted Successfully."
+		else
+			echo "Error. Exiting."
+			exit
+		fi
+else
+	echo "Error. Exiting."
+	exit
+fi
