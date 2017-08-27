@@ -78,9 +78,9 @@ fi
 # everything else should be comma separated
 echo "Converting ${INPUT} to ${OUTPUT}."
 
-if pdftotext -nopgbrk -raw ${INPUT} ${OUTPUT}
+if pdftotext -nopgbrk -raw "${INPUT}" "${OUTPUT}"
 	then
-		if sed -i '' -e ':a' -e 'N' -e '$!ba' -e 's/\n\$\$//g' -e 's/ , /,/g' ${OUTPUT}
+		if sed -i '' -e ':a' -e 'N' -e '$!ba' -e 's/\n\$\$//g' -e 's/ , /,/g' "${OUTPUT}"
 			then
 				echo "Converted Successfully."
 		else
