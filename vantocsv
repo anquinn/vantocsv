@@ -10,7 +10,7 @@
 
 INPUT="$1"
 OUTPUT="$2"
-VERSION="1.0.0"
+VERSION="1.0.1"
 
 # Check if PDFTOTEXT is installed
 if ! type "pdftotext" > /dev/null
@@ -80,7 +80,9 @@ echo "Converting ${INPUT} to ${OUTPUT}."
 
 if pdftotext -nopgbrk -raw "${INPUT}" "${OUTPUT}"
 	then
-		if sed -i '' -e ':a' -e 'N' -e '$!ba' -e 's/\n\$\$//g' -e 's/ , /,/g' "${OUTPUT}"
+		if sed -i '' -e ':a' -e 'N' -e '$!ba' -e 's/\n\$\$//g' -e 's/\ \,\ /\,/g' -e 's/\,\ /\,/g' "${OUTPUT}"
+		# -i in place, :a label, 'N' combine lines, '$!ba' newlines, 's/\n\$\$//g' strips $$, 
+		# 's/\ \,\ /\,/g' removes ' , ' , 's/\,\ /\,/g' cleanup remaining ', '
 			then
 				echo "Converted Successfully."
 		else
