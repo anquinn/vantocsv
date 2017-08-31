@@ -10,67 +10,74 @@
 
 INPUT="$1"
 OUTPUT="$2"
-VERSION="1.0.1"
+VERSION="1.0.2"
 
 # Check if PDFTOTEXT is installed
 if ! type "pdftotext" > /dev/null
-	then
-  		echo "\npdftotext is not installed"
-  		echo "Install the poppler package to continue."
-  		echo "The poppler package is availible in homebrew."
-  		echo "run: brew install poppler\n"
-  		exit
+  then
+      echo "\npdftotext is not installed"
+      echo "Install the poppler package to continue."
+      echo "The poppler package is availible in homebrew."
+      echo "run: brew install poppler\n"
+      exit
 fi
 
 # options
 while test $# -gt 0; do
     case "$1" in
         -h|--help)
-				echo " "
+        echo " "
                 echo "Converts VAN/Liberalist PDF print files to CSV"
                 echo "accepts a PDF as input and a CSV filename to write to"
                 echo " "
                 echo "Usage: "
-    			echo "  vantocsv INPUT.pdf OUTPUT.csv"
+          echo "  vantocsv INPUT.pdf OUTPUT.csv"
                 echo " "
                 echo "options:"
-                echo "-h, --help			show brief help"
-                echo "-v, --version			show version number"
+                echo "-h, --help      show brief help"
+                echo "-v, --version     show version number"
                 exit 0
                 ;;
         -v|--version)
-				echo "vantocsv version: $VERSION"
-				exit 0
-				;;
-		*) 
-				break
+        echo "vantocsv version: $VERSION"
+        exit 0
+        ;;
+    *) 
+        break
     esac
 done
 
-# make sure input and output are specified
+# make sure input is specified
 if [ $# -eq 0 ]
-  	then
-    	echo "Usage: "
-    	echo "  vantocsv INPUT.pdf OUTPUT.csv"
+    then
+      echo "Usage: "
+      echo "  vantocsv INPUT.pdf OUTPUT.csv"
         echo " "
         echo "options:"
-        echo "-h, --help			show brief help"
-        echo "-v, --version			show version number"
+        echo "-h, --help      show brief help"
+        echo "-v, --version     show version number"
     exit
 fi
 
 # make sure input is a PDF
 if [[ "$INPUT" != *.pdf ]] && [[ "$INPUT" != *.PDF ]]
-	then
-		echo "Input file is not a PDF."
-		exit
+  then
+    echo "Input file is not a PDF."
+    exit
+fi
+
+# if output is not specified, assume the user wants the a 
+# file with the same name as the input with a CSV extension
+if [ -z "$2" ]
+  then
+    OUTPUT="${INPUT%.*}.csv"
 fi
 
 # make sure output is a CSV
 if [[ "$OUTPUT" != *.csv ]] && [[ "$OUTPUT" != *.CSV ]]
-	then
-		echo "Output file is not a CSV."
-		exit
+  then
+    echo "Output file is not a CSV."
+    exit
 fi
 
 # convert the PDF to CSV
@@ -79,17 +86,17 @@ fi
 echo "Converting ${INPUT} to ${OUTPUT}."
 
 if pdftotext -nopgbrk -raw "${INPUT}" "${OUTPUT}"
-	then
-		if sed -i '' -e ':a' -e 'N' -e '$!ba' -e 's/\n\$\$//g' -e 's/\ \,\ /\,/g' -e 's/\,\ /\,/g' "${OUTPUT}"
-		# -i in place, :a label, 'N' combine lines, '$!ba' newlines, 's/\n\$\$//g' strips $$, 
-		# 's/\ \,\ /\,/g' removes ' , ' , 's/\,\ /\,/g' cleanup remaining ', '
-			then
-				echo "Converted Successfully."
-		else
-			echo "Error. Exiting."
-			exit
-		fi
+  then
+    if sed -i '' -e ':a' -e 'N' -e '$!ba' -e 's/\n\$\$//g' -e 's/\ \,\ /\,/g' -e 's/\,\ /\,/g' "${OUTPUT}"
+    # -i in place, :a label, 'N' combine lines, '$!ba' newlines, 's/\n\$\$//g' strips $$, 
+    # 's/\ \,\ /\,/g' removes ' , ' , 's/\,\ /\,/g' cleanup remaining ', '
+      then
+        echo "Converted Successfully."
+    else
+      echo "Error. Exiting."
+      exit
+    fi
 else
-	echo "Error. Exiting."
-	exit
+  echo "Error. Exiting."
+  exit
 fi
